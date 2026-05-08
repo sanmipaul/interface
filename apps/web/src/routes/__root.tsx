@@ -104,7 +104,7 @@ export const Route = createRootRoute({
       // ── Icons ───────────────────────────────────────────────────
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon.ico", sizes: "any" },
-      { rel: "apple-touch-icon", href: "/favicon.svg" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.json" },
 
       // ── Canonical ───────────────────────────────────────────────
