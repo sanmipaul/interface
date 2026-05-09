@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { useEarnStats } from "../../hooks/useEarnData"
+import { useEarnStats } from "../../hooks/use-earn-data"
 import { claimRewards } from "../../lib/earn"
 
 function fmtUsd(v: number) {

@@ -1,30 +1,9 @@
 import { Navbar } from "../../../ui/Navbar"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@workspace/ui/components/tabs"
-import { PortfolioTab } from "./portfolio/PortfolioTab"
-
-function ComingSoonTab({ label }: { label: string }) {
-  return (
-    <div className="flex min-h-80 flex-col items-center justify-center gap-2 text-center">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/40">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          className="text-muted-foreground/60"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-      </div>
-      <p className="text-sm font-medium text-foreground/60">{label}</p>
-      <p className="text-xs text-muted-foreground">Coming soon</p>
-    </div>
-  )
-}
+import { PortfolioTab } from "./portfolio/portfolio-tab"
+import { DiscoverTab } from "./discover/discover-tab"
+import { AdditionalOpportunitiesTab } from "./additional/additional-opportunities-tab"
+import { DistributionsTab } from "./distributions/distributions-tab"
 
 export function EarnPage() {
   return (
@@ -50,13 +29,13 @@ export function EarnPage() {
             <PortfolioTab />
           </TabsContent>
           <TabsContent value="discover">
-            <ComingSoonTab label="Discover" />
+            <DiscoverTab />
           </TabsContent>
           <TabsContent value="additional">
-            <ComingSoonTab label="Additional opportunities" />
+            <AdditionalOpportunitiesTab />
           </TabsContent>
           <TabsContent value="distributions">
-            <ComingSoonTab label="Distributions" />
+            <DistributionsTab />
           </TabsContent>
         </Tabs>
       </div>

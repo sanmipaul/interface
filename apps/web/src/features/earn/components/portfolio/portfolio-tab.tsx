@@ -1,6 +1,6 @@
-import { RewardsBar } from "./RewardsBar"
-import { RecommendedAssets } from "./RecommendedAssets"
-import { AssetsList } from "./AssetsList"
+import { RewardsBar } from "./rewards-bar"
+import { RecommendedAssets } from "./recommended-assets"
+import { AssetsList } from "./assets-list"
 
 export function PortfolioTab() {
   return (
