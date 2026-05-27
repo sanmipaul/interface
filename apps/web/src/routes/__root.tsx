@@ -1,10 +1,10 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Toaster } from "sonner"
-import { ThemeProvider } from "../ui/theme-provider"
-import { WalletProvider } from "../features/wallet/components/WalletProvider"
-import { NetworkMismatchBanner } from "../features/wallet/components/NetworkMismatchBanner"
 import appCss from "@workspace/ui/globals.css?url"
+import { ThemeProvider } from "../ui/theme-provider"
+import { NetworkMismatchBanner } from "../features/wallet/components/NetworkMismatchBanner"
+import { WalletProvider } from "../app/providers"
 
 const queryClient = new QueryClient({
   defaultOptions: {
