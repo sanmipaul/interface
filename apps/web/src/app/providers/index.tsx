@@ -8,10 +8,12 @@ import { NETWORK } from "@/app/config/network"
 const kitNetwork =
   NETWORK.name === "mainnet" ? Networks.PUBLIC : Networks.TESTNET
 
-StellarWalletsKit.init({
-  modules: defaultModules(),
-  network: kitNetwork,
-})
+if (typeof window !== "undefined") {
+  StellarWalletsKit.init({
+    modules: defaultModules(),
+    network: kitNetwork,
+  })
+}
 
 export type WalletStatus = "disconnected" | "connecting" | "connected" | "error"
 
