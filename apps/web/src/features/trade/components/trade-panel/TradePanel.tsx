@@ -15,7 +15,7 @@ import {
 } from "../../lib/trade-math"
 import { TradeInfoRows } from "./TradeInfoRows"
 import { ConfirmationDialog } from "./ConfirmationDialog"
-import type { TradeMode, TradeType } from "../../hooks/useTradeState"
+import type { TradeType } from "../../hooks/useTradeState"
 
 export function TradePanel() {
   const trade = useTradeState()

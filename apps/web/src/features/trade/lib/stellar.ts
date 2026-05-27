@@ -12,7 +12,6 @@
 // Soroban RPC: https://soroban.stellar.org/api
 
 import { toast } from "sonner"
-import { sorobanRpc } from "../../lib/soroban/client"
 import { formatUsd } from "@/shared/lib/format"
 
 export type IncreaseOrderParams = {
