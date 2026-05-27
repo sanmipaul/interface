@@ -77,6 +77,7 @@ export function usePositions(account = DUMMY_ACCOUNT) {
     queryKey: queryKeys.positions("stellar-mainnet", account),
     queryFn: () => fetchPositions(account),
     enabled: !!account,
+    staleTime: 10_000,
     refetchInterval: 15_000,
   })
 }

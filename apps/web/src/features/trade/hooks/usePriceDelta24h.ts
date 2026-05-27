@@ -7,7 +7,6 @@ export function usePriceDelta24h(symbol: string | undefined) {
     queryKey: queryKeys.priceDelta24h(symbol ?? ""),
     queryFn: () => fetch24hPriceDelta(symbol!),
     enabled: !!symbol,
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    staleTime: 60_000,
   })
 }

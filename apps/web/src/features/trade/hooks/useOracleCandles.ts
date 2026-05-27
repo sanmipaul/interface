@@ -10,7 +10,7 @@ export function useOracleCandles(symbol: string | undefined, period: string) {
     // Historical candles don't auto-refresh — period/symbol change triggers a manual invalidation
     // via queryClient.invalidateQueries() in TVChart.tsx when the user switches periods.
     // Live bar updates are handled separately by useLiveBar (1.5s polling).
-    staleTime: 1000 * 60 * 5,  // 5min — refetch if tab was hidden and comes back
+    staleTime: 60_000,
     refetchOnWindowFocus: false,
   })
 }

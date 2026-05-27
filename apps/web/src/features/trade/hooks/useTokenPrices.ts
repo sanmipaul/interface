@@ -11,8 +11,8 @@ export function useTokenPrices() {
   const { data, isLoading, error } = useQuery({
     queryKey: queryKeys.tokenPrices(CHAIN_ID),
     queryFn: fetchTokenPrices,
-    // TODO: Tighten to 5s once real oracle is live — dummy data is static so 30s is fine
-    refetchInterval: 30_000,
+    staleTime: 3_000,
+    refetchInterval: 5_000,
     select(prices): PricesMap {
       return Object.fromEntries(prices.map((p) => [p.symbol, p]))
     },
