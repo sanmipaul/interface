@@ -49,7 +49,8 @@ export function useEarnStats() {
         stakingPowerSharePct: 0,
       }
     },
-    staleTime: 30_000,
+    staleTime: 20_000,
+    refetchInterval: 30_000,
   })
 }
 
@@ -63,7 +64,8 @@ export function useUserGmPositions() {
       //   return only pools where balance > 0
       return []
     },
-    staleTime: 30_000,
+    staleTime: 20_000,
+    refetchInterval: 30_000,
   })
 }
 
@@ -77,7 +79,8 @@ export function useUserGlvPositions() {
       //   return only vaults where balance > 0
       return []
     },
-    staleTime: 30_000,
+    staleTime: 20_000,
+    refetchInterval: 30_000,
   })
 }
 
@@ -98,7 +101,8 @@ export function useUserSO4Stats() {
         multiplierPoints: 0,
       }
     },
-    staleTime: 30_000,
+    staleTime: 20_000,
+    refetchInterval: 30_000,
   })
 }
 

@@ -7,7 +7,18 @@ import appCss from "@workspace/ui/globals.css?url"
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 30,      // 30s — prices refresh frequently
+      // ─────────────────────────────────────────────────────────────────────────────
+      // Default staleTime (30s) — individual hooks override per the table below.
+      //
+      // Data type            staleTime   refetchInterval
+      // ─────────────────────────────────────────────────
+      // Prices (mark)        3 s         5 s
+      // Positions / Orders   10 s        15 s
+      // Staking / Rewards    20 s        30 s
+      // Market config        60 s        none
+      // Fee rates            120 s       none
+      // ─────────────────────────────────────────────────
+      staleTime: 1000 * 30,
       refetchOnWindowFocus: true,
     },
   },

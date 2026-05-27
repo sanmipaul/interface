@@ -54,6 +54,7 @@ export function useOrders(account = DUMMY_ACCOUNT) {
     queryKey: queryKeys.orders("stellar-mainnet", account),
     queryFn: () => fetchOrders(account),
     enabled: !!account,
+    staleTime: 10_000,
     refetchInterval: 15_000,
   })
 }

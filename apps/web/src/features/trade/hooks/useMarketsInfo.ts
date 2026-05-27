@@ -49,8 +49,7 @@ export function useMarketsInfo() {
   const { data, isLoading, error } = useQuery<MarketInfo[]>({
     queryKey: queryKeys.marketsInfo(CHAIN_ID),
     queryFn: fetchMarketsInfo,
-    refetchInterval: 30_000,
-    staleTime: 15_000,
+    staleTime: 60_000,
   })
 
   const marketsMap = Object.fromEntries((data ?? []).map((m) => [m.address, m]))
