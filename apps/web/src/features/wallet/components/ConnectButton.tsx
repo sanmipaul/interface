@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState, type ComponentProps } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { StellarWalletsKit } from "@creit.tech/stellar-wallets-kit/sdk"
+import { FREIGHTER_ID } from "@creit.tech/stellar-wallets-kit/modules/freighter"
+import { HANA_ID } from "@creit.tech/stellar-wallets-kit/modules/hana"
+import { XBULL_ID } from "@creit.tech/stellar-wallets-kit/modules/xbull"
 import { FREIGHTER_ID } from "@creit.tech/stellar-wallets-kit/modules/freighter"
 import { HANA_ID } from "@creit.tech/stellar-wallets-kit/modules/hana"
 import { XBULL_ID } from "@creit.tech/stellar-wallets-kit/modules/xbull"
@@ -18,6 +21,7 @@ import { cn } from "@workspace/ui/lib/utils"
 import { AccountBadge } from "./AccountBadge"
 import { createSep7ConnectUri, createSep7TransactionUri } from "../lib/sep7"
 import { useWalletStore } from "../store/wallet-store"
+import type { ComponentProps } from "react"
 
 type ConnectButtonProps = Omit<
   ComponentProps<typeof Button>,
@@ -30,7 +34,7 @@ type WalletOption = {
   installUrl: string
 }
 
-const WALLET_OPTIONS: WalletOption[] = [
+const WALLET_OPTIONS: Array<WalletOption> = [
   {
     id: FREIGHTER_ID,
     name: "Freighter",
@@ -56,7 +60,7 @@ export function ConnectButton({ className, ...props }: ConnectButtonProps) {
   const isConnecting = status === "connecting"
 
   if (status === "connected" && address) {
-    return <AccountBadge address={address} className={typeof className === "string" ? className : undefined} {...props} />
+    return <AccountBadge address={address} className={className as string | undefined} {...props} />
   }
 
   return (
@@ -76,6 +80,28 @@ export function ConnectButton({ className, ...props }: ConnectButtonProps) {
 
       <WalletModal open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen} />
     </>
+  )
+}
+
+function AccountBadge({
+  address,
+  className,
+  ...props
+}: {
+  address: string
+  className?: string
+} & Omit<ConnectButtonProps, "className">) {
+  return (
+    <Button
+      {...props}
+      type="button"
+      variant="outline"
+      aria-label={`Connected wallet ${formatAddress(address)}`}
+      className={cn("w-full justify-start gap-2 sm:w-auto", className)}
+    >
+      <span className="size-2 rounded-full bg-emerald-500" aria-hidden="true" />
+      <span className="font-mono">{formatAddress(address)}</span>
+    </Button>
   )
 }
 

@@ -1,15 +1,15 @@
-import { useWalletStore } from "../store/wallet-store"
+import { useWalletContext } from "../components/WalletProvider"
 
 export function useWallet() {
-  const address = useWalletStore((state) => state.address)
-  const status = useWalletStore((state) => state.status)
-  const network = useWalletStore((state) => state.network)
-  const disconnect = useWalletStore((state) => state.setDisconnected)
+  const { address, status, walletId, connect, disconnect, signTransaction } = useWalletContext()
 
   return {
     address,
+    isConnected: status === "connected",
     status,
-    network,
+    walletId,
+    connect,
     disconnect,
+    signTransaction,
   }
 }
