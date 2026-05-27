@@ -40,6 +40,12 @@ bun run contracts:gen:all
 
 This regenerates all 8 contract SDK packages from the currently-deployed testnet contracts.
 
+> **Note:** The ExchangeRouter bindings were generated manually from the
+> contract's expected interface (the contract is not yet deployed — see
+> `.env.testnet` placeholder IDs). Once the actual WASM is deployed, run
+> `stellar contract bindings typescript --contract-id <ID> --network testnet --output-dir src/lib/contracts/generated/exchange-router --overwrite`
+> to overwrite with the true auto-generated bindings.
+
 ## Per-Contract Generation
 
 ```bash
