@@ -17,7 +17,7 @@ export function useBalance() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["balance", "XLM", address],
-    queryFn: () => fetchXlmBalance(address!),
+    queryFn: () => fetchXlmBalance(address as string),
     enabled: !!address,
     staleTime: 15_000,
     refetchInterval: 15_000,

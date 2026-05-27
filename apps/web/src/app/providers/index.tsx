@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useRef } from "react"
+import { QueryProvider } from "./QueryProvider"
+import type { ReactNode } from "react"
 import { useWalletStore } from "@/features/wallet/store/wallet-store"
 import { NETWORK } from "@/app/config/network"
+import { ThemeProvider } from "@/ui/theme-provider"
 
 export type WalletStatus = "disconnected" | "connecting" | "connected" | "error"
 
@@ -11,11 +14,18 @@ export type WalletContextValue = {
   disconnect: () => Promise<void>
 }
 
-function WalletProvider({ children }: { children: ReactNode }) {
-  return children
+const WalletContext = createContext<WalletContextValue>({
+  address: null,
+  status: "disconnected",
+  connect: async () => {},
+  disconnect: async () => {},
+})
+
+export function useWallet(): WalletContextValue {
+  return useContext(WalletContext)
 }
 
-export function WalletProvider({ children }: { children: React.ReactNode }) {
+export function WalletProvider({ children }: { children: ReactNode }) {
   const { address, status, setConnected, setDisconnected, setStatus } = useWalletStore()
   const mountedRef = useRef(true)
 
@@ -84,5 +94,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     <WalletContext.Provider value={{ address, status, connect, disconnect }}>
       {children}
     </WalletContext.Provider>
+  )
+}
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  return (
+    <QueryProvider>
+      <WalletProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+      </WalletProvider>
+    </QueryProvider>
   )
 }
