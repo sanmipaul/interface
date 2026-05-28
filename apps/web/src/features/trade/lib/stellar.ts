@@ -60,8 +60,8 @@ function isValidAccount(account: string): boolean {
 
 async function invalidateTradeQueries(account: string): Promise<void> {
   await Promise.all([
-    queryClient.invalidateQueries({ queryKey: queryKeys.positions(CHAIN_ID, account) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.orders(CHAIN_ID, account) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.trade.positions(CHAIN_ID, account) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.trade.orders(CHAIN_ID, account) }),
   ])
 }
 
@@ -103,7 +103,7 @@ export async function createDecreaseOrder(params: DecreaseOrderParams): Promise<
       successMessage: "Position closed successfully",
       successDescription: (hash) => `Tx: ${hash.slice(0, 8)}...`,
       onSuccess: () =>
-        queryClient.invalidateQueries({ queryKey: queryKeys.positions(CHAIN_ID, params.account) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.trade.positions(CHAIN_ID, params.account) }),
       onError: parseSorobanError,
     },
   )
@@ -132,7 +132,7 @@ export async function createSwapOrder(params: SwapOrderParams): Promise<string> 
         `${params.amountIn} ${params.fromToken} -> ${params.minAmountOut} ${params.toToken} | Tx: ${hash.slice(0, 8)}...`,
       onSuccess: () =>
         queryClient.invalidateQueries({
-          queryKey: queryKeys.tokenBalances(CHAIN_ID, params.account),
+          queryKey: queryKeys.trade.tokenBalances(CHAIN_ID, params.account),
         }),
       onError: parseSorobanError,
     },
@@ -153,7 +153,7 @@ export async function cancelOrder(account: string, orderKey: OrderKey): Promise<
       loadingMessage: "Cancelling order...",
       successMessage: "Order cancelled",
       successDescription: (hash) => `Tx: ${hash.slice(0, 8)}...`,
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.orders(CHAIN_ID, account) }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.trade.orders(CHAIN_ID, account) }),
       onError: parseSorobanError,
     },
   )

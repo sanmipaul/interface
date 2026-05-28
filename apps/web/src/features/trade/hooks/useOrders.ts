@@ -59,7 +59,7 @@ const DUMMY_ACCOUNT = "GDUMMY...STELLAR"
 
 export function useOrders(account = DUMMY_ACCOUNT) {
   return useQuery<Array<Order>>({
-    queryKey: queryKeys.orders("stellar-mainnet", account),
+    queryKey: queryKeys.trade.orders("stellar-mainnet", account),
     queryFn: () => fetchOrders(account),
     enabled: !!account,
     staleTime: 10_000,

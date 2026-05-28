@@ -24,10 +24,14 @@ export type Position = {
   fundingFeeDebt: number
 }
 
+const CHAIN_ID = "stellar-mainnet"
+
+// TODO: Replace with SyntheticsReader.getPositionInfo once market addresses are live.
+// For each market, call reader.getPositionInfo(account, market.address, isLong) and
+// map the i128 amounts through fromSorobanAmount before returning.
 async function fetchPositions(account: string): Promise<Array<Position>> {
   if (!account) return []
 
-  // TODO: replace with SyntheticsReader.getPositionInfo market query once market addresses are live.
   const positions = await Promise.all(
     MARKETS.map(async (market, index) => {
       const isLong = index % 2 === 0
@@ -68,8 +72,11 @@ async function fetchPositions(account: string): Promise<Array<Position>> {
 
 export function usePositions() {
   const account = useWalletStore((state) => state.address)
+
   return useQuery<Array<Position>>({
-    queryKey: queryKeys.positions("stellar-mainnet", account ?? ""),
+    // Cache is invalidated by createIncreaseOrder and createDecreaseOrder in
+    // features/trade/lib/stellar.ts via queryClient.invalidateQueries().
+    queryKey: queryKeys.trade.positions(CHAIN_ID, account ?? ""),
     queryFn: () => fetchPositions(account!),
     enabled: !!account,
     staleTime: 10_000,

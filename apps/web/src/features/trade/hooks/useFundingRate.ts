@@ -24,7 +24,7 @@ async function fetchFundingRate(): Promise<FundingRateInfo> {
 
 export function useFundingRate() {
   return useQuery<FundingRateInfo>({
-    queryKey: queryKeys.fundingRate("stellar-mainnet"),
+    queryKey: queryKeys.trade.fundingRate("stellar-mainnet"),
     queryFn: fetchFundingRate,
     staleTime: 60_000,
     refetchInterval: 60_000,
