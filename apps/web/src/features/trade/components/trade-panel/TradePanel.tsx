@@ -20,6 +20,7 @@ import { ApplyReferralCodePrompt } from "./ApplyReferralCodePrompt"
 import type { TradeType } from "../../hooks/useTradeState"
 import { useDebounce } from "@/shared/hooks/useDebounce"
 import { useWalletStore } from "@/features/wallet/store/wallet-store"
+import { TokenIcon } from "@/shared/components/TokenIcon"
 
 export function TradePanel() {
   const trade = useTradeState()
@@ -283,8 +284,9 @@ function TradeInputs({ trade, validationError }: { trade: ReturnType<typeof useT
             onChange={(e) => setFromAmount(e.target.value)}
             className="pr-16 font-mono text-sm"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground">
-            {fromTokenAddress}
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            <TokenIcon symbol={fromTokenAddress} size={16} />
+            <span className="text-xs font-medium text-muted-foreground">{fromTokenAddress}</span>
           </span>
         </div>
         {fromUsd > 0 && (
@@ -308,7 +310,10 @@ function TradeInputs({ trade, validationError }: { trade: ReturnType<typeof useT
       {/* Receive / Index token label */}
       <div className="flex items-center justify-between text-xs">
         <span className="text-muted-foreground">{tradeFlags.isSwap ? "Receive" : "Market"}</span>
-        <span className="font-medium">{toTokenAddress}/USD</span>
+        <span className="flex items-center gap-1.5 font-medium">
+          <TokenIcon symbol={toTokenAddress} size={16} />
+          {toTokenAddress}/USD
+        </span>
       </div>
     </div>
   )
