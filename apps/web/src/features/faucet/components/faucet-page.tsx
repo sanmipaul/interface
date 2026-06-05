@@ -4,31 +4,52 @@ import { Navbar } from "@/ui/Navbar"
 import { TokenIcon } from "@/shared/components/TokenIcon"
 import { formatToken } from "@/shared/lib/format"
 import { NETWORK } from "@/app/config/network"
-import { useWallet } from "@/features/wallet/hooks/useWallet"
+import { useWalletStore } from "@/features/wallet/store/wallet-store"
 import { useNetwork } from "@/features/wallet/hooks/useNetwork"
 import { NetworkMismatchBanner } from "@/features/wallet/components/NetworkMismatchBanner"
 import { ConnectButton } from "@/features/wallet/components/ConnectButton"
+import { FAUCET_TOKENS, type FaucetTokenConfig } from "../data/tokens"
+import { FAUCET_CONTRACT_ID } from "../lib/clients"
 import { useFaucetData } from "../hooks/useFaucetData"
 import { useClaim } from "../hooks/useClaim"
 
 // ── Token card ────────────────────────────────────────────────────────────────
 
 type TokenCardProps = {
-  symbol: string
-  name: string
+  token: FaucetTokenConfig
   balance: number | undefined
   claimAmount: number | undefined
+  lastClaimLedger: number | null | undefined
+  cooldownLedgers: number | undefined
   isLoading: boolean
+  isPending: boolean
+  isDisabled: boolean
+  onClaim: (token: FaucetTokenConfig) => void
 }
 
-function TokenCard({ symbol, name, balance, claimAmount, isLoading }: TokenCardProps) {
+function TokenCard({
+  token,
+  balance,
+  claimAmount,
+  lastClaimLedger,
+  cooldownLedgers,
+  isLoading,
+  isPending,
+  isDisabled,
+  onClaim,
+}: TokenCardProps) {
+  const cooldownText =
+    lastClaimLedger && cooldownLedgers
+      ? `Last claim ledger ${lastClaimLedger.toLocaleString()}`
+      : "No claim recorded"
+
   return (
-    <div className="flex flex-1 flex-col gap-4 rounded-xl border border-border bg-card p-5">
+    <div className="flex min-w-0 flex-col gap-4 rounded-lg border border-border bg-card p-5">
       <div className="flex items-center gap-3">
-        <TokenIcon symbol={symbol.replace(/^T/, "")} size={36} />
+        <TokenIcon symbol={token.symbol.replace(/^T/, "")} size={36} />
         <div>
-          <p className="text-sm font-semibold text-foreground">{symbol}</p>
-          <p className="text-xs text-muted-foreground">{name}</p>
+          <p className="text-sm font-semibold text-foreground">{token.symbol}</p>
+          <p className="text-xs text-muted-foreground">{token.name}</p>
         </div>
       </div>
 
@@ -41,7 +62,7 @@ function TokenCard({ symbol, name, balance, claimAmount, isLoading }: TokenCardP
             <Skeleton className="mt-1 h-4 w-20" />
           ) : (
             <p className="font-mono text-sm text-foreground">
-              {formatToken(balance, symbol, { decimals: 4 })}
+              {formatToken(balance, token.symbol, { decimals: 4 })}
             </p>
           )}
         </div>
@@ -54,10 +75,23 @@ function TokenCard({ symbol, name, balance, claimAmount, isLoading }: TokenCardP
             <Skeleton className="mt-1 h-4 w-16" />
           ) : (
             <p className="font-mono text-sm text-foreground">
-              {formatToken(claimAmount, symbol, { decimals: 2 })}
+              {formatToken(claimAmount, token.symbol, { decimals: 2 })}
             </p>
           )}
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <p className="min-w-0 truncate text-[12px] text-muted-foreground">{cooldownText}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 shrink-0"
+          disabled={isDisabled || isPending}
+          onClick={() => onClaim(token)}
+        >
+          Claim
+        </Button>
       </div>
     </div>
   )
@@ -66,7 +100,8 @@ function TokenCard({ symbol, name, balance, claimAmount, isLoading }: TokenCardP
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function FaucetPage() {
-  const { address, isConnected } = useWallet()
+  const address = useWalletStore((state) => state.address)
+  const isConnected = useWalletStore((state) => state.status === "connected")
   const { mismatch } = useNetwork()
   const { data, isLoading } = useFaucetData(address)
   const { claim, isPending } = useClaim()
@@ -103,21 +138,21 @@ export function FaucetPage() {
         ) : (
           <div className="flex flex-col gap-6">
             {/* Token cards */}
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <TokenCard
-                symbol="TWBTC"
-                name="Test Bitcoin"
-                balance={data?.balances.twbtc}
-                claimAmount={data?.claimAmounts.twbtc}
-                isLoading={isLoading}
-              />
-              <TokenCard
-                symbol="TUSDC"
-                name="Test USDC"
-                balance={data?.balances.tusdc}
-                claimAmount={data?.claimAmounts.tusdc}
-                isLoading={isLoading}
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {FAUCET_TOKENS.map((token) => (
+                <TokenCard
+                  key={token.symbol}
+                  token={token}
+                  balance={data?.balances[token.symbol]}
+                  claimAmount={data?.claimAmounts[token.symbol]}
+                  lastClaimLedger={data?.lastClaimLedgers[token.symbol]}
+                  cooldownLedgers={data?.cooldownLedgers}
+                  isLoading={isLoading}
+                  isPending={isPending}
+                  isDisabled={claimDisabled}
+                  onClaim={(selectedToken) => claim([selectedToken.contractId])}
+                />
+              ))}
             </div>
 
             {/* Claim panel */}
@@ -126,8 +161,8 @@ export function FaucetPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">Claim test tokens</p>
                   <p className="mt-0.5 text-[13px] text-muted-foreground">
-                    Receive TWBTC and TUSDC in a single transaction. A cooldown applies between
-                    claims.
+                    Receive TUSDC, TWBTC, TETH, and TXLM in a single transaction. A cooldown
+                    applies between claims.
                   </p>
                 </div>
 
@@ -147,7 +182,7 @@ export function FaucetPage() {
                     variant="default"
                     className="w-full"
                     disabled={claimDisabled}
-                    onClick={claim}
+                    onClick={() => claim()}
                   >
                     {isPending ? (
                       <span className="flex items-center gap-2">
@@ -175,9 +210,11 @@ export function FaucetPage() {
               </p>
               <dl className="space-y-1.5">
                 {[
-                  { label: "Faucet", id: "CDAARNES7HX5R4CPYUGQ7GE4YNDJLUMMIJ6W5VH6EGMQLDQBUAY6KDB4" },
-                  { label: "TWBTC", id: "CCJRNW5YLINR5QSY6I37GIBHW5SCKWDGTQ64YYTYF5TYFQDFQRJQY54O" },
-                  { label: "TUSDC", id: "CAURHHYKGSTPHFF6CIY6KMWASK26REMXZVEOR57UC7TMKUTTT4JYDV4J" },
+                  { label: "Faucet", id: FAUCET_CONTRACT_ID },
+                  ...FAUCET_TOKENS.map((token) => ({
+                    label: token.symbol,
+                    id: token.contractId,
+                  })),
                 ].map(({ label, id }) => (
                   <div key={label} className="flex items-center justify-between gap-3">
                     <dt className="w-12 shrink-0 text-[12px] text-muted-foreground">{label}</dt>

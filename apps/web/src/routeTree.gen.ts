@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TradeRouteImport } from './routes/trade'
 import { Route as ReferralsRouteImport } from './routes/referrals'
+import { Route as PoolsRouteImport } from './routes/pools'
 import { Route as FaucetRouteImport } from './routes/faucet'
 import { Route as EarnRouteImport } from './routes/earn'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const TradeRoute = TradeRouteImport.update({
 const ReferralsRoute = ReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoolsRoute = PoolsRouteImport.update({
+  id: '/pools',
+  path: '/pools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaucetRoute = FaucetRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
   '/faucet': typeof FaucetRoute
+  '/pools': typeof PoolsRoute
   '/referrals': typeof ReferralsRoute
   '/trade': typeof TradeRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
   '/faucet': typeof FaucetRoute
+  '/pools': typeof PoolsRoute
   '/referrals': typeof ReferralsRoute
   '/trade': typeof TradeRoute
 }
@@ -60,21 +68,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/earn': typeof EarnRoute
   '/faucet': typeof FaucetRoute
+  '/pools': typeof PoolsRoute
   '/referrals': typeof ReferralsRoute
   '/trade': typeof TradeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/earn' | '/faucet' | '/referrals' | '/trade'
+  fullPaths: '/' | '/earn' | '/faucet' | '/pools' | '/referrals' | '/trade'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/earn' | '/faucet' | '/referrals' | '/trade'
-  id: '__root__' | '/' | '/earn' | '/faucet' | '/referrals' | '/trade'
+  to: '/' | '/earn' | '/faucet' | '/pools' | '/referrals' | '/trade'
+  id:
+    | '__root__'
+    | '/'
+    | '/earn'
+    | '/faucet'
+    | '/pools'
+    | '/referrals'
+    | '/trade'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EarnRoute: typeof EarnRoute
   FaucetRoute: typeof FaucetRoute
+  PoolsRoute: typeof PoolsRoute
   ReferralsRoute: typeof ReferralsRoute
   TradeRoute: typeof TradeRoute
 }
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/referrals'
       preLoaderRoute: typeof ReferralsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pools': {
+      id: '/pools'
+      path: '/pools'
+      fullPath: '/pools'
+      preLoaderRoute: typeof PoolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faucet': {
@@ -123,6 +147,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EarnRoute: EarnRoute,
   FaucetRoute: FaucetRoute,
+  PoolsRoute: PoolsRoute,
   ReferralsRoute: ReferralsRoute,
   TradeRoute: TradeRoute,
 }

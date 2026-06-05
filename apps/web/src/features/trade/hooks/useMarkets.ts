@@ -38,8 +38,8 @@ export function useMarkets() {
   const getMarketsForIndexToken = useMemo(
     () => (indexTokenAddressOrSymbol: string) => {
       const token = getToken(indexTokenAddressOrSymbol)
-      const symbol = token ? token.symbol : indexTokenAddressOrSymbol
-      return markets.filter((m) => m.indexTokenAddress === symbol)
+      const tokenAddress = token ? token.address : indexTokenAddressOrSymbol
+      return markets.filter((m) => m.indexTokenAddress === tokenAddress)
     },
     [markets, getToken],
   )

@@ -6,6 +6,7 @@ import {
   SacTokenClient,
   StakingRouterClient,
   SyntheticsReaderClient,
+  TokenClient,
   VestingRouterClient,
   type ExchangeCreateDepositParams,
   type ExchangeCreateWithdrawalParams,
@@ -50,6 +51,14 @@ export const referralStorageClient = new ReferralStorageClient({
 export const orderVaultClient = new OrderVaultClient(CONTRACTS.orderVault)
 
 export const sacTokenClient = new SacTokenClient(networkConfig)
+
+export function getTokenClient(contractId: string, publicKey?: string): TokenClient {
+  return new TokenClient({
+    ...networkConfig,
+    contractId,
+    publicKey,
+  })
+}
 
 export function getGlvRouterClient(): GlvRouterClient {
   return new GlvRouterClient({

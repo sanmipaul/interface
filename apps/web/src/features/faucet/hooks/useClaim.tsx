@@ -1,10 +1,13 @@
 import { useCallback, useState } from "react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
-import { useWallet } from "@/features/wallet/hooks/useWallet"
+import { useWalletStore } from "@/features/wallet/store/wallet-store"
+import { walletKit } from "@/features/wallet/lib/wallet-kit"
 import { sendAndPoll } from "@/lib/tx-builder"
 import { explorerTxUrl } from "@/app/config/network"
-import { createFaucetClient, TWBTC_CONTRACT_ID, TUSDC_CONTRACT_ID } from "../lib/clients"
+import { queryKeys } from "@/shared/lib/query-keys"
+import { FAUCET_TOKENS } from "../data/tokens"
+import { createFaucetClient } from "../lib/clients"
 import { parseSorobanError } from "@/lib/contracts"
 
 function isClaimTooSoonError(error: unknown): boolean {
@@ -18,29 +21,33 @@ function isClaimTooSoonError(error: unknown): boolean {
 }
 
 export function useClaim() {
-  const { address, signTransaction, isConnected } = useWallet()
+  const address = useWalletStore((state) => state.address)
+  const isConnected = useWalletStore((state) => state.status === "connected")
   const queryClient = useQueryClient()
   const [isPending, setIsPending] = useState(false)
 
-  const claim = useCallback(async () => {
+  const claim = useCallback(async (tokenIds = FAUCET_TOKENS.map((token) => token.contractId)) => {
     if (!address || !isConnected) return
 
     setIsPending(true)
-    const toastId = toast.loading("Claiming test tokens…")
+    const toastId = toast.loading(
+      tokenIds.length === 1 ? "Claiming test token…" : "Claiming test tokens…",
+    )
 
     try {
       const faucet = createFaucetClient(address)
       const tx = await faucet.claim_many({
         account: address,
-        tokens: [TWBTC_CONTRACT_ID, TUSDC_CONTRACT_ID],
+        tokens: tokenIds,
       })
 
       const unsignedXdr = tx.toXDR()
-      const signedXdr = await signTransaction(unsignedXdr)
+      const { signedTxXdr } = await walletKit.signTransaction(unsignedXdr)
+      const signedXdr = signedTxXdr
       const { hash } = await sendAndPoll(signedXdr)
 
       // Refresh balances after a successful claim
-      await queryClient.invalidateQueries({ queryKey: ["faucet", "data"] })
+      await queryClient.invalidateQueries({ queryKey: queryKeys.faucet.data(address) })
 
       toast.success("Test tokens claimed!", {
         id: toastId,
@@ -63,7 +70,7 @@ export function useClaim() {
     } finally {
       setIsPending(false)
     }
-  }, [address, isConnected, signTransaction, queryClient])
+  }, [address, isConnected, queryClient])
 
   return { claim, isPending }
 }

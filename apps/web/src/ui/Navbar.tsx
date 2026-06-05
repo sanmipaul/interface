@@ -54,8 +54,9 @@ const LANDING_LINKS = [
   { label: "Governance", href: "#" },
 ]
 
-const APP_LINKS: Array<{ label: string; to: "/trade" | "/earn" | "/referrals" | "/faucet" | null }> = [
+const APP_LINKS: Array<{ label: string; to: "/trade" | "/pools" | "/earn" | "/referrals" | "/faucet" | null }> = [
   { label: "Trade", to: "/trade" },
+  { label: "Pools", to: "/pools" },
   { label: "Earn", to: "/earn" },
   { label: "Referrals", to: "/referrals" },
   { label: "Faucet", to: "/faucet" },

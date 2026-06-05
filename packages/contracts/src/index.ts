@@ -45,6 +45,7 @@ export {
 } from "./clients/referral-storage"
 export { OrderVaultClient, type OrderVaultBinding } from "./clients/order-vault"
 export { SacTokenClient } from "./clients/sac-token"
+export { TokenClient } from "./clients/token"
 
 export * as ExchangeRouterGenerated from "./generated/exchange-router/src"
 export * as SyntheticsReaderGenerated from "./generated/synthetics-reader/src"
