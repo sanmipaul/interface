@@ -3,13 +3,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/componen
 import { Button } from "@workspace/ui/components/button"
 import { usePositions } from "../../hooks/usePositions"
 import { hasFrozenOrders, useOrders } from "../../hooks/useOrders"
+import { claimFundingFees } from "../../lib/stellar"
 import { OrderExecutionFrozenBanner } from "./OrderExecutionFrozenBanner"
 import { PositionsList } from "./PositionsList"
 import { OrdersList } from "./OrdersList"
-import { claimFundingFees } from "../../lib/stellar"
+import type { Position } from "../../hooks/usePositions"
 import { useWalletStore } from "@/features/wallet/store/wallet-store"
 import { formatUsd } from "@/shared/lib/format"
-import type { Position } from "../../hooks/usePositions"
 
 // TODO: Add Trades and Claims tabs once tradeHistory + claimFundingFees are wired up
 

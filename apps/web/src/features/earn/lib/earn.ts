@@ -1,52 +1,33 @@
 import { toast } from "sonner"
+import { GLV_VAULTS, GM_POOLS } from "../data/pools"
 import { submitTx } from "@/shared/hooks/useTxSubmit"
 import { NETWORK } from "@/app/config/network"
 import { queryClient } from "@/app/providers/QueryProvider"
 import { prepareAndSign } from "@/lib/soroban/tx-builder"
-import { parseSorobanError } from "@/lib/contracts"
+import {
+  buildClaimRewardsTransaction,
+  buildCompoundTransaction,
+  buildCreateDepositTransaction,
+  buildCreateWithdrawalTransaction,
+  buildDepositForVestingTransaction,
+  buildStakeSO4Transaction,
+  buildUnstakeSO4Transaction,
+  parseSorobanError,
+} from "@/lib/contracts"
 import { walletKit } from "@/features/wallet/lib/wallet-kit"
 import { queryKeys } from "@/shared/lib/query-keys"
 import { toSorobanAmount } from "@/shared/lib/bignum"
 import {
-  buildStakeSO4Transaction,
-  buildUnstakeSO4Transaction,
-  buildClaimRewardsTransaction,
-  buildCompoundTransaction,
-} from "@/lib/contracts"
-import {
-  buildCreateDepositTransaction,
-  buildCreateWithdrawalTransaction,
-} from "@/lib/contracts"
-import { buildDepositForVestingTransaction } from "@/lib/contracts"
-import {
   createDeposit as createGlvDeposit,
   createWithdrawal as createGlvWithdrawal,
 } from "@/lib/glv-router-client"
-import { GM_POOLS, GLV_VAULTS } from "../data/pools"
 
 const SO4_DECIMALS = 7
 const GM_TOKEN_DECIMALS = 7
 const GLV_TOKEN_DECIMALS = 7
 
-function fakeTxDelay(ms = 1500): Promise<void> {
-  return new Promise((res) => setTimeout(res, ms))
-}
-
 function isValidAccount(account: string): boolean {
   return /^G[A-Z2-7]{55}$/.test(account)
-}
-
-async function runMockWrite(loadingMessage: string, successMessage: string, delay = 1500): Promise<string> {
-  return submitTx(async () => "", {
-    loadingMessage,
-    successMessage,
-    successDescription: () => "Tx: DUMMY_TX_HASH",
-    execute: async () => {
-      await fakeTxDelay(delay)
-      return "DUMMY_TX_HASH"
-    },
-    onError: (error) => (error instanceof Error ? error.message : "Transaction failed"),
-  })
 }
 
 async function invalidateStakingQueries(account: string): Promise<void> {

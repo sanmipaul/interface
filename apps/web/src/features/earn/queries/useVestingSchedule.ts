@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
+import type { VestingSchedule } from "@/lib/contracts"
+import { getVestingRouterClient } from "@/lib/contracts"
 import { useWalletStore } from "@/features/wallet/store/wallet-store"
-import { getVestingRouterClient, type VestingSchedule } from "@/lib/contracts"
 import { queryKeys } from "@/shared/lib/query-keys"
 
 /**

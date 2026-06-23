@@ -2,9 +2,10 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { useState } from "react"
-import { useOrders, type Order } from "../../hooks/useOrders"
+import { useOrders } from "../../hooks/useOrders"
 import { cancelOrder } from "../../lib/stellar"
 import { formatUsd } from "../../lib/trade-math"
+import type { Order } from "../../hooks/useOrders"
 import type { OrderKey } from "@/lib/contracts"
 
 function toOrderKey(order: Order): OrderKey {
