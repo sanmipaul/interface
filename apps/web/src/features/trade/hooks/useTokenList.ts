@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
-import { Contract, Account, TransactionBuilder, rpc, scValToNative } from "@stellar/stellar-sdk"
+import { Account, Contract, rpc, scValToNative, TransactionBuilder } from "@stellar/stellar-sdk"
 import { TOKENS } from "../data/tokens"
-import type { Token } from "../data/tokens"
 import { sorobanRpc } from "../../../lib/soroban/client"
 import { NETWORK } from "../../../app/config/network"
 import { CONTRACTS } from "../../../app/config/contracts"
+import type { Token } from "../data/tokens"
 
 const DUMMY_ACCOUNT = "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 

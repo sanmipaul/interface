@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { fetchTokenPrices } from "../lib/oracle"
 import { queryKeys } from "../lib/query-keys"
-import type { TokenPrice } from "../lib/oracle"
-import { getOracleStaleness, type OracleStaleness } from "../lib/pyth"
+import { getOracleStaleness } from "../lib/pyth"
+import type { OracleStaleness } from "../lib/pyth"
 import { useTokenList } from "./useTokenList"
+import type { TokenPrice } from "../lib/oracle"
 
 const CHAIN_ID = "stellar-mainnet"
 

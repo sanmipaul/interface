@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState, type ComponentProps } from "react"
+import type { ComponentProps } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { toast } from "sonner"
 
-import { explorerAccountUrl } from "@/app/config/network"
+import { cn } from "@workspace/ui/lib/utils"
 import { useBalance } from "../hooks/useBalance"
 import { useNetwork } from "../hooks/useNetwork"
 import { useWallet } from "../hooks/useWallet"
+import { explorerAccountUrl } from "@/app/config/network"
 import { formatAddress } from "@/shared/lib/format"
-import { cn } from "@workspace/ui/lib/utils"
 
 type AccountBadgeProps = {
   address: string
