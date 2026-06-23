@@ -41,6 +41,8 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
     return;
   }
 
+  // Stellar StrKey addresses are case-sensitive uppercase base32. Keep the
+  // canonical decoded form so app filters can match the real account/contract.
   const fromAccount = decodeAddress(from);
   const toAccount = decodeAddress(to);
 
@@ -52,19 +54,22 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
     return;
   }
 
-  const contractAddress = event.contractId ? Buffer.from(event.contractId.contractId()).toString('hex') : '';
-  const transactionHash = getTransactionHash(event);
+  // Store the emitting contract as its canonical "C..." StrKey so it lines up
+  // with the contract ids in config and with the decoded from/to addresses.
+  const contractAddress = event.contractId
+    ? Address.contract(event.contractId.contractId() as unknown as Buffer).toString()
+    : "";
   const transfer = MarketTokenTransfer.create({
     id: event.id,
     contractAddress,
-    from: fromAccount.toLowerCase(),
-    to: toAccount.toLowerCase(),
-    account: fromAccount.toLowerCase(),
+    from: fromAccount,
+    to: toAccount,
+    account: fromAccount,
     transferType: decodeTopicName(eventName),
     amount: scValToBigInt(event.value).toString(),
     ledger: event.ledger!.sequence,
     timestamp: new Date(event.ledgerClosedAt),
-    transactionHash,
+    transactionHash: event.txHash,
   });
 
   await transfer.save();
@@ -96,14 +101,4 @@ function decodeTopicName(scVal: xdr.ScVal): string {
     return scVal.str().toString();
   }
   return valueType;
-}
-
-function getTransactionHash(event: SorobanEvent): string | undefined {
-  const maybeEvent = event as unknown as {
-    transactionHash?: string;
-    txHash?: string;
-    transaction?: { hash?: string };
-  };
-
-  return maybeEvent.transactionHash ?? maybeEvent.txHash ?? maybeEvent.transaction?.hash;
 }
