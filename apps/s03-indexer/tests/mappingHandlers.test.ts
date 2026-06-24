@@ -1,9 +1,24 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import { dispatchEvent, type DecodedEvent } from "../src/mappings/mappingHandlers";
+import {
+  decodeAddress,
+  decodeBoolean,
+  decodeBytesN32,
+  decodeInteger,
+  decodeSorobanEvent,
+  decodeTopicName,
+  decodeTuple,
+  dispatchEvent,
+  type DecodedEvent,
+} from "../src/mappings/mappingHandlers";
+import { Address, Keypair, nativeToScVal, xdr } from "@stellar/stellar-sdk";
 
 const marketToken = "CCBUUSYZJTGVA6PYUNQDFPZFHTBZ2QSHOUO7YAGRQVA46T3ZLSIYULS4";
+const indexToken = "CAJ6BZKGFT47ALGMVFZZGAOXBV2RWIVYVCU4WJCQIURKRNXU346RWVAU";
+const shortToken = "CBAN5YU3KRDKPTQ2H76D6S7HQFPRBGUD524F65BUM2RQCITPTRLKWKES";
 const handlerContract = "CDWOFIP4YQJGMCYAOWLSRBAWN2OTJUG2I5WOFC32O2TX2SRU56RWBE5C";
-const account = "GBXRE3IOBATED5NREPWDFL5GGFL4UEOM2QRKAEWA25JIMUXYTKA74GNU";
+const marketFactoryContract = "CBGX3EJFI3JRHSN5B533O2L5P57JFPTCRS55IPWFS5BNDXLJLXDWA5Z2";
+const account = Keypair.random().publicKey();
+const receiver = Keypair.random().publicKey();
 
 type StoreBucket = Map<string, Record<string, unknown>>;
 
@@ -46,6 +61,87 @@ beforeEach(() => {
 });
 
 describe("SO4 event dispatch", () => {
+  test("decodes primitive ScVal fixtures", () => {
+    const keyHex = "11".repeat(32);
+
+    expect(decodeTopicName(xdr.ScVal.scvSymbol("pos_dec"))).toBe("pos_dec");
+    expect(decodeAddress(Address.fromString(account).toScVal())).toBe(account);
+    expect(decodeAddress(Address.fromString(marketToken).toScVal())).toBe(marketToken);
+    expect(decodeBytesN32(xdr.ScVal.scvBytes(Buffer.from(keyHex, "hex")))).toBe(keyHex);
+    expect(decodeBoolean(xdr.ScVal.scvBool(true))).toBe(true);
+    expect(decodeInteger(nativeToScVal(-7n, { type: "i128" }))).toBe("-7");
+    expect(decodeInteger(nativeToScVal(42n, { type: "u128" }))).toBe("42");
+  });
+
+  test("decodes ScMap payloads as named fields and Vec payloads as positional only", () => {
+    const mapTuple = decodeTuple(
+      xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol("amount"),
+          val: nativeToScVal(42n, { type: "u128" }),
+        }),
+      ]),
+    );
+    const vecTuple = decodeTuple(
+      xdr.ScVal.scvVec([
+        xdr.ScVal.scvSymbol("amount"),
+        nativeToScVal(42n, { type: "u128" }),
+      ]),
+    );
+
+    expect(mapTuple.named.amount).toBe("42");
+    expect(mapTuple.list).toHaveLength(0);
+    expect(vecTuple.list).toEqual(["amount", "42"]);
+    expect(vecTuple.named).toEqual({});
+  });
+
+  test("decodes raw market event payloads with empty named fields", () => {
+    const decoded = decodeSorobanEvent(
+      rawEvent(
+        "mkt_new",
+        xdr.ScVal.scvVec([
+          Address.fromString(marketToken).toScVal(),
+          Address.fromString(indexToken).toScVal(),
+          Address.fromString(indexToken).toScVal(),
+          Address.fromString(shortToken).toScVal(),
+        ]),
+        marketFactoryContract,
+      ),
+    );
+
+    expect(decoded?.eventName).toBe("mkt_new");
+    expect(decoded?.contractAddress).toBe(marketFactoryContract);
+    expect(decoded?.values.named).toEqual({});
+    expect(decoded?.values.list).toEqual([marketToken, indexToken, indexToken, shortToken]);
+  });
+
+  test("indexes a raw positional position decrease event with source-verified indices", async () => {
+    const positionKey = "22".repeat(32);
+    const decoded = decodeSorobanEvent(
+      rawEvent(
+        "pos_dec",
+        xdr.ScVal.scvVec([
+          xdr.ScVal.scvBytes(Buffer.from(positionKey, "hex")),
+          Address.fromString(account).toScVal(),
+          nativeToScVal(500n, { type: "i128" }),
+          nativeToScVal(2000n, { type: "i128" }),
+          nativeToScVal(-25n, { type: "i128" }),
+        ]),
+      ),
+    );
+
+    expect(decoded?.values.named).toEqual({});
+    await dispatchEvent(decoded!);
+
+    const [position] = records("Position");
+    const [change] = records("PositionChange");
+    expect(position.id).toBe(`position:${positionKey}`);
+    expect(position.account).toBe(account);
+    expect(change.sizeDeltaUsd).toBe("500");
+    expect(change.executionPrice).toBe("2000");
+    expect(change.pnlUsd).toBe("-25");
+  });
+
   test("indexes a market creation event idempotently", async () => {
     const event = so4Event("mkt_new", {
       market_token: marketToken,
@@ -156,7 +252,7 @@ describe("SO4 event dispatch", () => {
     await dispatchEvent(
       so4Event("transfer", {
         from: account,
-        to: "GCFXWMLJTQG5DGOUBWH4WZRK45ZKQGZBIWOAZ5QIRDR5UPB7YAE5VEW3",
+        to: receiver,
         amount: "1000",
       }, marketToken),
     );
@@ -220,4 +316,16 @@ function bucket(entity: string): StoreBucket {
     buckets.set(entity, value);
   }
   return value;
+}
+
+function rawEvent(eventName: string, value: xdr.ScVal, contractAddress = handlerContract) {
+  return {
+    id: `raw-${eventName}`,
+    topic: [xdr.ScVal.scvSymbol(eventName)],
+    value,
+    contractId: Address.fromString(contractAddress).toScAddress(),
+    ledger: { sequence: 100 },
+    ledgerClosedAt: "2026-06-24T12:00:00Z",
+    txHash: `tx-${eventName}`,
+  } as never;
 }
