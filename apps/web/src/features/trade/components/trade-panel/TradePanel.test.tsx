@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useWalletStore } from "@/features/wallet/store/wallet-store"
+import type { TradePanel as TradePanelComponent } from "./TradePanel"
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -143,7 +144,7 @@ function createMockTrade(overrides: Record<string, unknown> = {}) {
   }
 }
 
-let TradePanel: typeof import("./TradePanel").TradePanel
+let TradePanel: TradePanelComponent
 
 describe("TradePanel", () => {
   beforeAll(async () => {
