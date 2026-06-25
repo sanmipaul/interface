@@ -1,6 +1,5 @@
+import { describe, it, expect, afterEach } from 'vitest';
 
-import { afterEach, describe, expect, it } from 'bun:test';
-import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { GmPoolsTable } from './gm-pools-table';
 import type { Pool } from './gm-pools-table';
